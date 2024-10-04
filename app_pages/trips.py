@@ -12,10 +12,7 @@ logger.setLevel(logging.INFO)
 def get_upcoming_trips():
     trips = st.session_state.trips
     return [
-        trip
-        for _, trip in trips.iterrows()
-        if datetime.datetime.strptime(trip["End Date"], "%d.%m.%Y").date()
-        > datetime.date.today()
+        trip for _, trip in trips.iterrows() if trip["End Date"] > datetime.date.today()
     ]
 
 
@@ -24,9 +21,14 @@ def get_past_trips():
     return [
         trip
         for _, trip in trips.iterrows()
-        if datetime.datetime.strptime(trip["End Date"], "%d.%m.%Y").date()
-        <= datetime.date.today()
+        if trip["End Date"] <= datetime.date.today()
     ]
+
+
+def add_trip(trip):
+    trips = st.session_state.trips
+    trip = pd.DataFrame(data=trip, index=[0])
+    st.session_state.trips = pd.concat([trips, trip], axis=0, ignore_index=True)
 
 
 class ProcessOptions(enum.Enum):
@@ -43,6 +45,13 @@ def process_trip():
 
     elif process_option == ProcessOptions.create:
         logger.info("creating new trip...")
+        trip = {
+            "Destination": st.session_state.destination,
+            "Country": st.session_state.country,
+            "Start Date": st.session_state.time_period[0],
+            "End Date": st.session_state.time_period[1],
+        }
+        add_trip(trip)
 
     elif process_option == ProcessOptions.edit:
         logger.info("editing trip...")
@@ -126,8 +135,14 @@ if "trips" not in st.session_state:
         {
             "Destination": ["Berlin", "Paris"],
             "Country": ["DE", "FR"],
-            "Start Date": ["10.10.2024", "07.03.2024"],
-            "End Date": ["21.10.2024", "14.03.2024"],
+            "Start Date": [
+                datetime.datetime.strptime("10.10.2024", "%d.%m.%Y").date(),
+                datetime.datetime.strptime("07.03.2024", "%d.%m.%Y").date(),
+            ],
+            "End Date": [
+                datetime.datetime.strptime("21.10.2024", "%d.%m.%Y").date(),
+                datetime.datetime.strptime("14.03.2024", "%d.%m.%Y").date(),
+            ],
             "People Notified": [None, None],
         }
     )
