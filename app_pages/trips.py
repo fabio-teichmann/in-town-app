@@ -8,6 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+
 def get_upcoming_trips():
     trips = st.session_state.trips
     return [
@@ -93,7 +94,19 @@ def edit_trip():
 
 @st.dialog("Delete trip")
 def delete_trip():
-    pass
+    trips = get_upcoming_trips()
+    options = []
+    if len(trips) != 0:
+        options = [
+            f"{trip.Destination} ({trip.Country}) - {trip['Start Date']} / {trip['End Date']}"
+            for trip in trips
+        ]
+    st.selectbox("Choose your trip", options=options)
+
+    if st.button("Delete trip"):
+        st.session_state.process_option = ProcessOptions.delete
+        process_trip()
+        st.rerun()
 
 
 # Page elements
