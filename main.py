@@ -1,16 +1,10 @@
-# This is a sample Python script.
-
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+import streamlit as st
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+home_page = st.Page("in_town.py", title="Home", icon=":material/home:")
+trips_page = st.Page("app_pages/trips.py", title="Trips", icon=":material/travel:")
+groups_page = st.Page("app_pages/groups.py", title="Groups", icon=":material/groups:")
 
+pg = st.navigation([home_page, trips_page, groups_page])
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+pg.run()
