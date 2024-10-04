@@ -1,15 +1,33 @@
 import streamlit as st
 import pandas as pd
+import datetime
 
 st.title("Trips")
 
 tab1, tab2 = st.tabs(["Upcoming trips", "Past trips"])
 
 
-@st.dialog("Create new trip")
-def create_new_trip():
+def process_trip():
     pass
 
+
+@st.dialog("Create new trip")
+def create_new_trip():
+    with st.form("create_trip"):
+        left, _, right = st.columns([5, 1, 5])
+        left.text_input("Destination:", placeholder="Berlin", key="destination")
+        right.text_input("Country:", placeholder="DE", max_chars=2, key="country")
+
+        st.date_input(
+            label="Select the time period for your trip:",
+            min_value=datetime.date.today(),
+            value=[],
+            format="DD.MM.YYYY",
+            key="time_period",
+        )
+
+        st.form_submit_button("Create new trip", on_click=process_trip)
+        st.rerun()
 
 @st.dialog("Edit trip")
 def edit_trip():
