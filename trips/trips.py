@@ -2,11 +2,7 @@ import streamlit as st
 import pandas as pd
 import datetime
 import enum
-import logging
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+from in_town_app import logger
 
 
 def get_upcoming_trips():
@@ -14,6 +10,14 @@ def get_upcoming_trips():
     return [
         trip for _, trip in trips.iterrows() if trip["End Date"] > datetime.date.today()
     ]
+
+
+def get_upcoming_trip(trip_id):
+    trips = get_upcoming_trips()
+    for trip in trips:
+        if trip["id"] == trip_id:
+            return trip
+    logger.warning(f"Trip not found: {trip_id}")
 
 
 def get_past_trips():
@@ -31,6 +35,11 @@ def add_trip(trip):
     st.session_state.trips = pd.concat([trips, trip], axis=0, ignore_index=True)
 
 
+# def edit_trip(trip, trip_id):
+#     logger.info("editing trip...")
+#     pass
+
+
 class ProcessOptions(enum.Enum):
     create = "create"
     edit = "edit"
@@ -46,6 +55,7 @@ def process_trip():
     elif process_option == ProcessOptions.create:
         logger.info("creating new trip...")
         trip = {
+            "id": "er3",
             "Destination": st.session_state.destination,
             "Country": st.session_state.country,
             "Start Date": st.session_state.time_period[0],
@@ -55,12 +65,27 @@ def process_trip():
 
     elif process_option == ProcessOptions.edit:
         logger.info("editing trip...")
+        trip = {
+            "id": st.session_state.trip_id,
+            "Destination": st.session_state.destination,
+            "Country": st.session_state.country,
+            "Start Date": st.session_state.time_period[0],
+            "End Date": st.session_state.time_period[1],
+        }
+        trips = st.session_state.trips
+        for idx, row in trips.iterrows():
+            if row["id"] == st.session_state.trip_id:
+                trips.loc[idx] = trip
+        st.session_state.trips = trips
+
 
     elif process_option == ProcessOptions.delete:
         logger.info("deleting trip...")
 
     else:
         raise NotImplementedError(f"Unknown process option: {process_option}")
+
+    st.session_state.process_option = None
 
 
 @st.dialog("Create new trip")
@@ -84,21 +109,10 @@ def create_new_trip():
             st.rerun()
 
 
-@st.dialog("Edit trip")
+# @st.dialog("Edit trip")
 def edit_trip():
-    trips = get_upcoming_trips()
-    options = []
-    if len(trips) != 0:
-        options = [
-            f"{trip.Destination} ({trip.Country}) - {trip['Start Date']} / {trip['End Date']}"
-            for trip in trips
-        ]
-    st.selectbox("Choose your trip", options=options)
+    st.switch_page("trips/edit_trip.py")
 
-    if st.button("Edit trip"):
-        st.session_state.process_option = ProcessOptions.edit
-        process_trip()
-        st.rerun()
 
 
 @st.dialog("Delete trip")
@@ -133,6 +147,7 @@ if "trips" not in st.session_state:
     )
     dummy_trips = pd.DataFrame(
         {
+            "id": ["as0", "df1"],
             "Destination": ["Berlin", "Paris"],
             "Country": ["DE", "FR"],
             "Start Date": [
@@ -157,7 +172,8 @@ with tab1:
     left, center, right, _, _, _ = st.columns(6)
 
     left.button("Add trip", on_click=create_new_trip)
-    center.button("Edit trip", on_click=edit_trip)
+    if center.button("Edit trip"):
+        edit_trip()
     right.button("Delete trip", on_click=delete_trip)
 
     upcoming_trips = get_upcoming_trips()

@@ -17,5 +17,5 @@ pip install -r requirements.txt
 
 To run the app, enter the following into your terminal:
 ```bash
-streamlit run main.py
+streamlit run in_town_app.py
 ```
