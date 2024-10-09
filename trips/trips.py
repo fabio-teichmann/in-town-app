@@ -35,11 +35,6 @@ def add_trip(trip):
     st.session_state.trips = pd.concat([trips, trip], axis=0, ignore_index=True)
 
 
-# def edit_trip(trip, trip_id):
-#     logger.info("editing trip...")
-#     pass
-
-
 class ProcessOptions(enum.Enum):
     create = "create"
     edit = "edit"
@@ -78,9 +73,13 @@ def process_trip():
                 trips.loc[idx] = trip
         st.session_state.trips = trips
 
-
     elif process_option == ProcessOptions.delete:
         logger.info("deleting trip...")
+        trips = st.session_state.trips
+        for idx, row in trips.iterrows():
+            if row["id"] == st.session_state.trip_id:
+                trips.drop(idx, inplace=True)
+        st.session_state.trips = trips
 
     else:
         raise NotImplementedError(f"Unknown process option: {process_option}")
@@ -109,22 +108,22 @@ def create_new_trip():
             st.rerun()
 
 
-# @st.dialog("Edit trip")
 def edit_trip():
     st.switch_page("trips/edit_trip.py")
-
 
 
 @st.dialog("Delete trip")
 def delete_trip():
     trips = get_upcoming_trips()
-    options = []
-    if len(trips) != 0:
-        options = [
-            f"{trip.Destination} ({trip.Country}) - {trip['Start Date']} / {trip['End Date']}"
-            for trip in trips
-        ]
-    st.selectbox("Choose your trip", options=options)
+    options = [trip.id for trip in trips]
+
+    def display_trip(_id):
+        for trip in get_upcoming_trips():
+            if trip["id"] == _id:
+                return f"{trip.Destination} ({trip.Country}) - {trip['Start Date']} / {trip['End Date']}"
+
+    trip_id = st.selectbox("Choose your trip", options=options, format_func=lambda x: display_trip(x))
+    st.session_state.trip_id = trip_id
 
     if st.button("Delete trip"):
         st.session_state.process_option = ProcessOptions.delete
