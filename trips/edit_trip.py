@@ -1,8 +1,13 @@
 import streamlit as st
-from trips.trips import get_upcoming_trips, get_upcoming_trip, ProcessOptions, process_trip
+from trips.trips import (
+    get_upcoming_trips,
+    get_upcoming_trip,
+    ProcessOptions,
+    process_trip,
+)
 import datetime
 
-st.title('Edit Trip')
+st.title("Edit Trip")
 
 trips = get_upcoming_trips()
 options = [trip.id for trip in trips]
@@ -14,7 +19,9 @@ def display_trip(_id):
             return f"{trip.Destination} ({trip.Country}) - {trip['Start Date']} / {trip['End Date']}"
 
 
-trip_id = st.selectbox("Choose your trip", options=options, format_func=lambda x: display_trip(x))
+trip_id = st.selectbox(
+    "Choose your trip", options=options, format_func=lambda x: display_trip(x)
+)
 st.session_state.trip_id = trip_id
 
 

@@ -11,8 +11,10 @@ def get_users() -> pd.DataFrame:
 def create_new_user():
     pass
 
+
 def edit_user():
     pass
+
 
 def delete_user():
     pass

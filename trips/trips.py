@@ -122,7 +122,9 @@ def delete_trip():
             if trip["id"] == _id:
                 return f"{trip.Destination} ({trip.Country}) - {trip['Start Date']} / {trip['End Date']}"
 
-    trip_id = st.selectbox("Choose your trip", options=options, format_func=lambda x: display_trip(x))
+    trip_id = st.selectbox(
+        "Choose your trip", options=options, format_func=lambda x: display_trip(x)
+    )
     st.session_state.trip_id = trip_id
 
     if st.button("Delete trip"):
