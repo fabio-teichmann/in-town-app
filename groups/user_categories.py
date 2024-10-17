@@ -8,9 +8,17 @@ def get_categories():
     return st.session_state.user_categories
 
 
+@st.dialog("Add category")
 def create_new_category():
-    pass
-
+    category = st.text_input(label="Category Name", key="user_category")
+    categories = get_categories()
+    button = st.button("Add Category")
+    if button:
+        id = len(categories) + 1
+        category = pd.DataFrame(index=[0], data={"id": id, "Category": category})
+        st.session_state.user_categories = pd.concat([categories, category], ignore_index=True)
+        st.write(st.session_state.user_categories)
+        st.rerun()
 
 def edit_category():
     pass
