@@ -14,7 +14,7 @@ def create_new_category():
     categories = get_categories()
     button = st.button("Add Category")
     if button:
-        id = len(categories) + 1
+        id = max(categories["id"]) + 1
         category = pd.DataFrame(index=[0], data={"id": id, "Category": category})
         st.session_state.user_categories = pd.concat(
             [categories, category], ignore_index=True
@@ -23,19 +23,19 @@ def create_new_category():
         st.rerun()
 
 
+def display_cat(option):
+    for _, cat in get_categories().iterrows():
+        if option == cat["id"]:
+            return f"{cat['Category']}"
+
+
 @st.dialog("Edit category")
 def edit_category():
     categories = get_categories()
 
-    def display_cat(option):
-        for _, cat in get_categories().iterrows():
-            if option == cat["id"]:
-                return f"{cat['Category']}"
-
     cat_id = st.selectbox(
         label="Select Category", options=categories, format_func=display_cat
     )
-    st.write(cat_id)
     cat_name = categories.loc[categories["id"] == cat_id]["Category"].iloc[0]
     new_category = st.text_input(label="Category Name", value=cat_name)
 
@@ -46,8 +46,18 @@ def edit_category():
         st.rerun()
 
 
+@st.dialog("Delete category")
 def delete_category():
-    pass
+    categories = get_categories()
+    cat_id = st.selectbox(
+        label="Select Category", options=categories, format_func=display_cat
+    )
+
+    button = st.button("Delete Category")
+    if button:
+        categories = categories.loc[categories["id"] != cat_id]
+        st.session_state.user_categories = categories
+        st.rerun()
 
 
 st.title("User Categories")
