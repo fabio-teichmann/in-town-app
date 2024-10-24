@@ -16,12 +16,34 @@ def create_new_category():
     if button:
         id = len(categories) + 1
         category = pd.DataFrame(index=[0], data={"id": id, "Category": category})
-        st.session_state.user_categories = pd.concat([categories, category], ignore_index=True)
+        st.session_state.user_categories = pd.concat(
+            [categories, category], ignore_index=True
+        )
         st.write(st.session_state.user_categories)
         st.rerun()
 
+
+@st.dialog("Edit category")
 def edit_category():
-    pass
+    categories = get_categories()
+
+    def display_cat(option):
+        for _, cat in get_categories().iterrows():
+            if option == cat["id"]:
+                return f"{cat['Category']}"
+
+    cat_id = st.selectbox(
+        label="Select Category", options=categories, format_func=display_cat
+    )
+    st.write(cat_id)
+    cat_name = categories.loc[categories["id"] == cat_id]["Category"].iloc[0]
+    new_category = st.text_input(label="Category Name", value=cat_name)
+
+    button = st.button("Edit Category")
+    if button:
+        categories.loc[categories["id"] == cat_id, "Category"] = new_category
+        st.session_state.user_categories = categories
+        st.rerun()
 
 
 def delete_category():
